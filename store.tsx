@@ -1,10 +1,39 @@
-//curl "https://poloniex.com/public?command=returnTicker"
-import { action, observable } from 'mobx';
-class ObservableStore {
-  @observable property = 'hell131';
+import {action, observable} from 'mobx';
+import axios from 'axios';
 
-  @action.bound setProperty(newProperty: string) {
-    this.property = (new Date()).toString();
+class ObservableStore {
+  @observable tickers = [];
+  @observable isLoading = false;
+
+  constructor() {
+    this.fetchTickers();
+  }
+
+  @action.bound
+  setIsLoading(isLoading){
+    this.isLoading = isLoading;
+  };
+
+  @action.bound
+  fetchTickers() {
+    this.setIsLoading(true);
+    setTimeout(() => {
+      axios.get('https://poloniex.com/public?command=returnTicker')
+        .then(({data}) => {
+          this.tickers =
+            Object
+              .keys(data)
+              .reduce((acc, item) => [{...data[item], name: item}, ...acc], []);
+        })
+        .catch(function (error) {
+          // handle error
+          console.log(error);
+        })
+        .finally(() => {
+          this.setIsLoading(false);
+          // always executed
+        });
+    }, 3000);
   }
 }
 
