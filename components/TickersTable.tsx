@@ -12,9 +12,9 @@ function TickersTable({tickers, isLoading}) {
         loading
       />}
       {!isLoading && <FlatList
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item.get('id').toString()}
         data={tickers}
-        renderItem={TickersTableItem}
+        renderItem={({item})=> <TickersTableItem item={item}/>}
         ItemSeparatorComponent={() => <View style={{margin: 2, backgroundColor: '#ccc', height: 1}}/>}
       />}
     </>

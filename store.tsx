@@ -1,5 +1,6 @@
 import {action, observable} from 'mobx';
 import axios from 'axios';
+import {fromJS} from 'immutable';
 
 class ObservableStore {
   @observable tickers = [];
@@ -7,9 +8,9 @@ class ObservableStore {
 
   constructor() {
     this.fetchTickers();
-    setTimeout(() => {
+    setInterval(() => {
       this.fetchTickers();
-    }, 4000)
+    }, 3000)
   }
 
   @action.bound
@@ -19,20 +20,25 @@ class ObservableStore {
 
   @action.bound
   fetchTickers() {
-    this.setIsLoading(true);
+    //this.setIsLoading(true);
     axios.get('https://poloniex.com/public?command=returnTicker')
       .then(({data}) => {
         this.tickers =
           Object
             .keys(data)
-            .reduce((acc, item) => [...acc,{...data[item], name: item}], []);
+            .reduce((acc, item, index) => [...acc, fromJS({
+              ...data[item],
+              //last: index < 3 ? data[item].last * 2 : data[item].last,
+              //last: data[item].last * 2,
+              name: item
+            })], []);
       })
       .catch(function (error) {
         // handle error
         console.log(error);
       })
       .finally(() => {
-        this.setIsLoading(false);
+        //this.setIsLoading(false);
         // always executed
       });
   }
