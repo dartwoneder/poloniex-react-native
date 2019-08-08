@@ -7,33 +7,34 @@ class ObservableStore {
 
   constructor() {
     this.fetchTickers();
+    setTimeout(() => {
+      this.fetchTickers();
+    }, 4000)
   }
 
   @action.bound
-  setIsLoading(isLoading){
+  setIsLoading(isLoading) {
     this.isLoading = isLoading;
   };
 
   @action.bound
   fetchTickers() {
     this.setIsLoading(true);
-    setTimeout(() => {
-      axios.get('https://poloniex.com/public?command=returnTicker')
-        .then(({data}) => {
-          this.tickers =
-            Object
-              .keys(data)
-              .reduce((acc, item) => [{...data[item], name: item}, ...acc], []);
-        })
-        .catch(function (error) {
-          // handle error
-          console.log(error);
-        })
-        .finally(() => {
-          this.setIsLoading(false);
-          // always executed
-        });
-    }, 3000);
+    axios.get('https://poloniex.com/public?command=returnTicker')
+      .then(({data}) => {
+        this.tickers =
+          Object
+            .keys(data)
+            .reduce((acc, item) => [...acc,{...data[item], name: item}], []);
+      })
+      .catch(function (error) {
+        // handle error
+        console.log(error);
+      })
+      .finally(() => {
+        this.setIsLoading(false);
+        // always executed
+      });
   }
 }
 

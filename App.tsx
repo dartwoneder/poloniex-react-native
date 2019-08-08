@@ -2,17 +2,17 @@ import React from 'react';
 import {Provider} from 'mobx-react';
 import {createAppContainer, createBottomTabNavigator} from 'react-navigation';
 
-import {AboutScreen, QuotesScreen} from './screens';
+import {AboutScreen, TickersScreen} from './screens';
 import store from './store';
 
 const TabNavigator = createBottomTabNavigator({
-  Quotes: QuotesScreen,
+  Tickers: TickersScreen,
   About: AboutScreen,
 });
 
 const AppContainer = createAppContainer(TabNavigator);
 
-export default function () {
+export default function App() {
   return (
     <Provider store={store}>
       <AppContainer/>

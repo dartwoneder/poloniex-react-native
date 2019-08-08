@@ -1,2 +1,2 @@
 export {default as AboutScreen} from './AboutScreen';
-export {default as QuotesScreen} from './QuotesScreen';
+export {default as TickersScreen} from './TickersScreen';
