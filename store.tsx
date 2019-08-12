@@ -1,17 +1,12 @@
 import {action, observable} from 'mobx';
 import axios from 'axios';
-import {fromJS} from 'immutable';
+
+const API_ROOT = 'https://poloniex.com/public';
 
 class ObservableStore {
   @observable tickers = [];
   @observable isLoading = false;
-
-  constructor() {
-    this.fetchTickers();
-    setInterval(() => {
-      this.fetchTickers();
-    }, 3000)
-  }
+  @observable error = null;
 
   @action.bound
   setIsLoading(isLoading) {
@@ -19,27 +14,40 @@ class ObservableStore {
   };
 
   @action.bound
-  fetchTickers() {
-    //this.setIsLoading(true);
-    axios.get('https://poloniex.com/public?command=returnTicker')
+  setError(error) {
+    this.error = error;
+  };
+
+  @action.bound
+  fetchTickers(showLoader) {
+    if (showLoader) {
+      this.setIsLoading(true);
+    }
+
+    return axios.get(`${API_ROOT}?command=returnTicker`)
       .then(({data}) => {
+        this.setError(null);
+        if (data.error) {
+          throw Error(JSON.stringify(data));
+        }
         this.tickers =
           Object
             .keys(data)
-            .reduce((acc, item, index) => [...acc, fromJS({
-              ...data[item],
-              //last: index < 3 ? data[item].last * 2 : data[item].last,
-              //last: data[item].last * 2,
-              name: item
-            })], []);
+            .reduce((acc, item) => {
+              return [...acc, {
+                ...data[item],
+                name: item
+              }];
+            }, []);
       })
-      .catch(function (error) {
-        // handle error
-        console.log(error);
+      .catch((error) => {
+        console.log('Error occured: ', error);
+        this.setError(error);
       })
       .finally(() => {
-        //this.setIsLoading(false);
-        // always executed
+        if (showLoader) {
+          this.setIsLoading(false);
+        }
       });
   }
 }
